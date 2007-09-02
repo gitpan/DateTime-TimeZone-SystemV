@@ -1,7 +1,7 @@
 # http://module-build.sourceforge.net/META-spec.html
 #XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
 name:         DateTime-TimeZone-SystemV
-version:      0.000
+version:      0.001
 version_from: lib/DateTime/TimeZone/SystemV.pm
 installdirs:  site
 requires:
@@ -9,4 +9,4 @@ requires:
     Date::JD:                      0.001
 
 distribution_type: module
-generated_by: ExtUtils::MakeMaker version 6.17
+generated_by: ExtUtils::MakeMaker version 6.30_01

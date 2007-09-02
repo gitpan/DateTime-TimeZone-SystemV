@@ -1,3 +1,10 @@
+version 0.001; 2007-09-02
+
+  * avoid returning negative zero for offsets, which was confusing the
+    test suite
+
+  * move a misplaced ", in seconds" in the documentation
+
 version 0.000; 2007-02-04
 
   * initial released version

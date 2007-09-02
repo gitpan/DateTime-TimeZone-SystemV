@@ -2,7 +2,7 @@ use Test::More;
 
 eval { require DateTime; };
 plan skip_all => "DateTime not available" unless $@ eq "";
-plan tests => 577;
+plan tests => 589;
 
 require_ok "DateTime::TimeZone::SystemV";
 
@@ -16,6 +16,14 @@ sub try($$$$) {
 	is $tz->offset_for_datetime($dt), $offset, "offset for $timespec";
 	is $tz->short_name_for_datetime($dt), $abbrev, "abbrev for $timespec";
 }
+
+# zero offsets
+foreach("GMT0", "GMT+0", "GMT-0") {
+	$tz = DateTime::TimeZone::SystemV->new($_);
+	try "2005-01-03T00:00:00Z", 0, +0, "GMT";
+}
+$tz = DateTime::TimeZone::SystemV->new("AAA1BBB");
+try "2005-04-24T09:00:00Z", 1, +0, "BBB";
 
 # constant offset
 $tz = DateTime::TimeZone::SystemV->new("EST5");

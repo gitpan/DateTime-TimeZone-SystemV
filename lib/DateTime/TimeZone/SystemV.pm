@@ -140,7 +140,7 @@ use Date::ISO8601 0.000
 	qw(month_days ymd_to_cjdn year_days cjdn_to_yd cjdn_to_ywd);
 use Date::JD 0.001 qw(rdn_to_cjdn);
 
-our $VERSION = "0.000";
+our $VERSION = "0.001";
 
 my $abbrev_rx = qr#[A-Za-z]{3,}|\<[-+0-9A-Za-z]{3,}\>#;
 my $offset_rx = qr#[-+]?(?:2[0-4]|[01]?\d)(?::[0-5]\d(?::[0-5]\d)?)?#;
@@ -163,7 +163,8 @@ sub _parse_offset($) {
 	my($sign, $h, $m, $s) =
 		($spec =~ /\A([-+]?)(\d+)(?::(\d+)(?::(\d+))?)?\z/);
 	return ($sign eq "-" ? 1 : -1) *
-		($h*3600 + (defined($m) ? $m*60 + (defined($s) ? $s : 0) : 0));
+		($h*3600 + (defined($m) ? $m*60 + (defined($s) ? $s : 0) : 0))
+		|| 0;
 }
 
 sub _parse_rule($$) {
@@ -372,7 +373,7 @@ sub offset_for_datetime($$) {
 I<DT> must be a L<DateTime>-compatible object (specifically, it
 must implement the C<utc_rd_values> method).  Returns the time scale
 abbreviation for the offset that is in effect at the instant represented
-by I<DT>, in seconds.
+by I<DT>.
 
 =cut
 
@@ -389,7 +390,7 @@ must implement the C<local_rd_values> method).  Takes the local
 time represented by I<DT> (regardless of what absolute time it also
 represents), and interprets that as a local time in the timezone of the
 timezone object (not the timezone used in I<DT>).  Returns the offset
-from UT that is in effect at that local time.
+from UT that is in effect at that local time, in seconds.
 
 If the local time given is ambiguous due to a nearby offest change, the
 numerically lower offset (usually the standard one) is returned with no
