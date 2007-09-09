@@ -1,0 +1,34 @@
+This file contains message digests of all files listed in MANIFEST,
+signed via the Module::Signature module, version 0.55.
+
+To verify the content in this distribution, first make sure you have
+Module::Signature installed, then type:
+
+    % cpansign -v
+
+It will check each file's integrity, as well as the signature's
+validity.  If "==> Signature verified OK! <==" is not displayed,
+the distribution may already have been compromised, and you should
+not run its Makefile.PL or Build.PL.
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+SHA1 d72365ad9b574e921f789aa411388e0854559b41 .cvsignore
+SHA1 63a66a73d3580bca1ff1dcde33d5b5090ab27a53 Build.PL
+SHA1 ffed35a50d1d5a60b6767409a4c70fd2539c246d Changes
+SHA1 2aac8443c8cf9533552a7c1430161f65d848e934 MANIFEST
+SHA1 21044948c08b43719275e2f10de98f6bc3560082 META.yml
+SHA1 cd14ada78fb37a0d926edd86eddcdf7f939de582 Makefile.PL
+SHA1 78b8c4905ea7c055e851dc552881878865c504e4 README
+SHA1 e28b657fc458984add5bcd917dee0c591bb76761 lib/DateTime/TimeZone/SystemV.pm
+SHA1 0596709e97149324325178387ca4a888e3319790 t/ident.t
+SHA1 5549db1819bffc9338ef913b578c8a8284e63ea9 t/local.t
+SHA1 a01576a29fd4d9f681a664ed44bd7d61f45d1056 t/offset.t
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD4DBQFG5DqROV9mt2VyAVERApH+AJ92X8sEYUImXhNUagX8HfV7epJ+6wCXXVX+
+vjTPu14K/QHm0vGWYFdq4g==
+=Vj3U
+-----END PGP SIGNATURE-----

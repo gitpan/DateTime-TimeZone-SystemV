@@ -138,9 +138,9 @@ use strict;
 use Carp qw(croak);
 use Date::ISO8601 0.000
 	qw(month_days ymd_to_cjdn year_days cjdn_to_yd cjdn_to_ywd);
-use Date::JD 0.001 qw(rdn_to_cjdn);
+use Date::JD 0.002 qw(rdn_to_cjdn);
 
-our $VERSION = "0.001";
+our $VERSION = "0.002";
 
 my $abbrev_rx = qr#[A-Za-z]{3,}|\<[-+0-9A-Za-z]{3,}\>#;
 my $offset_rx = qr#[-+]?(?:2[0-4]|[01]?\d)(?::[0-5]\d(?::[0-5]\d)?)?#;
