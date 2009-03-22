@@ -9,4 +9,6 @@ lib/DateTime/TimeZone/SystemV.pm
 t/ident.t
 t/local.t
 t/offset.t
+t/pod_cvg.t
+t/pod_syn.t
 SIGNATURE    Added here by Module::Build

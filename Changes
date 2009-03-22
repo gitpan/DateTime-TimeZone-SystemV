@@ -1,6 +1,30 @@
+version 0.003; 2009-03-22
+
+  * bugfix: cleanly reject non-ASCII digits in timezone specification
+
+  * use "fields" module to structure object
+
+  * test POD syntax and coverage, and rename an internal function to
+    satisfy the coverage test
+
+  * drop prototypes from method subs (where the prototypes have no effect)
+
+  * in tests, avoid unreliable "\d" regexp element
+
+  * typo fix in documentation
+
+  * include "distribution_type" entry in META.yml to satisfy CPANTS
+
+  * in documentation, separate "license" section from "copyright" section
+
+  * use full stricture in Build.PL
+
+  * remove from .cvsignore items that don't occur with Module::Build
+
 version 0.002; 2007-09-09
 
-  * bugfix: require bugfixed version of Date::JD
+  * bugfix: require bugfixed version of Date::JD (for $SIG{__DIE__}
+    handling)
 
   * build with Module::Build instead of ExtUtils::MakeMaker
 

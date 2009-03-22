@@ -140,14 +140,18 @@ use Date::ISO8601 0.000
 	qw(month_days ymd_to_cjdn year_days cjdn_to_yd cjdn_to_ywd);
 use Date::JD 0.002 qw(rdn_to_cjdn);
 
-our $VERSION = "0.002";
+our $VERSION = "0.003";
+
+use fields qw(
+	spec std_abbrev std_offset dst_abbrev dst_offset start_rule end_rule
+);
 
 my $abbrev_rx = qr#[A-Za-z]{3,}|\<[-+0-9A-Za-z]{3,}\>#;
-my $offset_rx = qr#[-+]?(?:2[0-4]|[01]?\d)(?::[0-5]\d(?::[0-5]\d)?)?#;
-my $rule_date_rx = qr#J0*(?:3(?:[0-5]\d|6[0-5])|[12]?\d\d|[1-9])
-		     |0*(?:3(?:[0-5]\d|6[0-4])|[12]?\d\d|\d)
+my $offset_rx = qr#[-+]?(?:2[0-4]|[01]?[0-9])(?::[0-5][0-9](?::[0-5][0-9])?)?#;
+my $rule_date_rx = qr#J0*(?:3(?:[0-5][0-9]|6[0-5])|[12]?[0-9][0-9]|[1-9])
+		     |0*(?:3(?:[0-5][0-9]|6[0-4])|[12]?[0-9][0-9]|[0-9])
 		     |M0*(?:1[0-2]|[1-9])\.0*[1-5]\.0*[0-6]#x;
-my $rule_time_rx = qr#(?:2[0-3]|[01]?\d)(?::[0-5]\d(?::[0-5]\d)?)?#;
+my $rule_time_rx = qr#(?:2[0-3]|[01]?[0-9])(?::[0-5][0-9](?::[0-5][0-9])?)?#;
 my $rule_dt_rx = qr#${rule_date_rx}(?:/${rule_time_rx})?#o;
 my $sysv_tz_rx = qr#${abbrev_rx}${offset_rx}
 		    (?:${abbrev_rx}(?:${offset_rx})?
@@ -161,7 +165,7 @@ sub _parse_abbrev($) {
 sub _parse_offset($) {
 	my($spec) = @_;
 	my($sign, $h, $m, $s) =
-		($spec =~ /\A([-+]?)(\d+)(?::(\d+)(?::(\d+))?)?\z/);
+		($spec =~ /\A([-+]?)([0-9]+)(?::([0-9]+)(?::([0-9]+))?)?\z/);
 	return ($sign eq "-" ? 1 : -1) *
 		($h*3600 + (defined($m) ? $m*60 + (defined($s) ? $s : 0) : 0))
 		|| 0;
@@ -189,24 +193,23 @@ timezone object that implements the timezone specified by I<TZ_STRING>.
 
 =cut
 
-sub new($$) {
+sub new {
 	my($class, $spec) = @_;
 	croak "not a valid SysV-style timezone specification"
 		unless $spec =~ /\A${sysv_tz_rx}\z/o;
+	my DateTime::TimeZone::SystemV $self = fields::new($class);
+	$self->{spec} = $spec;
 	$spec =~ /\A($abbrev_rx)($offset_rx)/og;
 	my($std_abbrev, $std_offset) = ($1, $2);
-	if($spec =~ /\G\z/gc) {
-		return bless({
-			spec => $spec,
-			std_abbrev => _parse_abbrev($std_abbrev),
-			std_offset => _parse_offset($std_offset),
-		}, $class);
-	}
-	$std_offset = _parse_offset($std_offset);
+	$self->{std_abbrev} = _parse_abbrev($std_abbrev);
+	$self->{std_offset} = _parse_offset($std_offset);
+	return $self if $spec =~ /\G\z/gc;
 	$spec =~ /\G($abbrev_rx)($offset_rx)?/g;
 	my($dst_abbrev, $dst_offset) = ($1, $2);
-	$dst_offset = defined($dst_offset) ? _parse_offset($dst_offset) :
-					     $std_offset + 3600;
+	$self->{dst_abbrev} = _parse_abbrev($dst_abbrev);
+	$self->{dst_offset} =
+		defined($dst_offset) ? _parse_offset($dst_offset) :
+					     $self->{std_offset} + 3600;
 	my($start_rule, $end_rule);
 	if($spec =~ /\G,(.*),(.*)/g) {
 		($start_rule, $end_rule) = ($1, $2);
@@ -215,15 +218,9 @@ sub new($$) {
 		# old SysV style specs were expected to do
 		($start_rule, $end_rule) = ("M4.5.0", "M10.5.0");
 	}
-	return bless({
-		spec => $spec,
-		std_abbrev => _parse_abbrev($std_abbrev),
-		std_offset => $std_offset,
-		dst_abbrev => _parse_abbrev($dst_abbrev),
-		dst_offset => $dst_offset,
-		start_rule => _parse_rule($start_rule, $std_offset),
-		end_rule => _parse_rule($end_rule, $dst_offset),
-	}, $class);
+	$self->{start_rule} = _parse_rule($start_rule, $self->{std_offset});
+	$self->{end_rule} = _parse_rule($end_rule, $self->{dst_offset});
+	return $self;
 }
 
 =back
@@ -244,7 +241,7 @@ Returns false.
 
 =cut
 
-sub is_floating($) { 0 }
+sub is_floating { 0 }
 
 =item $tz->is_utc
 
@@ -252,7 +249,7 @@ Returns false.
 
 =cut
 
-sub is_utc($) { 0 }
+sub is_utc { 0 }
 
 =item $tz->is_olson
 
@@ -260,7 +257,7 @@ Returns false.
 
 =cut
 
-sub is_olson($) { 0 }
+sub is_olson { 0 }
 
 =item $tz->category
 
@@ -277,7 +274,10 @@ Returns the I<TZ_STRING> that was supplied to the constructor.
 
 =cut
 
-sub name { $_[0]->{spec} }
+sub name {
+	my DateTime::TimeZone::SystemV $self = shift;
+	return $self->{spec};
+}
 
 =back
 
@@ -291,7 +291,10 @@ Returns a boolean indicating whether the timezone includes a DST offset.
 
 =cut
 
-sub has_dst_changes { exists $_[0]->{dst_abbrev} }
+sub has_dst_changes {
+	my DateTime::TimeZone::SystemV $self = shift;
+	return exists $self->{dst_abbrev};
+}
 
 =item $tz->is_dst_for_datetime(DT)
 
@@ -303,16 +306,16 @@ whether the timezone is on DST at the instant represented by I<DT>.
 
 sub _rule_doy($$) {
 	my($drule, $year) = @_;
-	if($drule =~ /\AJ(\d+)\z/) {
+	if($drule =~ /\AJ([0-9]+)\z/) {
 		my $j = $1;
 		if($j < 60) {
 			return $j;
 		} else {
 			return year_days($year) - 365 + $j;
 		}
-	} elsif($drule =~ /\A(\d+)\z/) {
+	} elsif($drule =~ /\A([0-9]+)\z/) {
 		return 1 + $1;
-	} elsif($drule =~ /\AM(\d+)\.(\d+)\.(\d+)\z/) {
+	} elsif($drule =~ /\AM([0-9]+)\.([0-9]+)\.([0-9]+)\z/) {
 		my($m, $w, $dow) = ($1, $2, $3);
 		my $fdom = ($w == 5 ? month_days($year, $m) : $w*7) - 6;
 		my(undef, undef, $fdow) =
@@ -325,8 +328,9 @@ sub _rule_doy($$) {
 	}
 }
 
-sub _is_dst_for_utc_rdn_sod($$$) {
-	my($self, $rdn, $sod) = @_;
+sub _is_dst_for_utc_rdn_sod {
+	my DateTime::TimeZone::SystemV $self = shift;
+	my($rdn, $sod) = @_;
 	my($year, $doy) = cjdn_to_yd(rdn_to_cjdn($rdn));
 	my $soy = $doy * 86400 + $sod;
 	my @latest_change;
@@ -346,8 +350,9 @@ sub _is_dst_for_utc_rdn_sod($$$) {
 	return $latest_change[1] > $latest_change[0];
 }
 
-sub is_dst_for_datetime($$) {
-	my($self, $dt) = @_;
+sub is_dst_for_datetime {
+	my DateTime::TimeZone::SystemV $self = shift;
+	my($dt) = @_;
 	return 0 unless exists $self->{dst_abbrev};
 	my($utc_rdn, $utc_sod) = $dt->utc_rd_values;
 	$utc_sod = 86399 if $utc_sod >= 86400;
@@ -362,8 +367,9 @@ is in effect at the instant represented by I<DT>, in seconds.
 
 =cut
 
-sub offset_for_datetime($$) {
-	my($self, $dt) = @_;
+sub offset_for_datetime {
+	my DateTime::TimeZone::SystemV $self = shift;
+	my($dt) = @_;
 	return $self->{$self->is_dst_for_datetime($dt) ?
 			"dst_offset" : "std_offset"};
 }
@@ -377,8 +383,9 @@ by I<DT>.
 
 =cut
 
-sub short_name_for_datetime($$) {
-	my($self, $dt) = @_;
+sub short_name_for_datetime {
+	my DateTime::TimeZone::SystemV $self = shift;
+	my($dt) = @_;
 	return $self->{$self->is_dst_for_datetime($dt) ?
 			"dst_abbrev" : "std_abbrev"};
 }
@@ -392,7 +399,7 @@ represents), and interprets that as a local time in the timezone of the
 timezone object (not the timezone used in I<DT>).  Returns the offset
 from UT that is in effect at that local time, in seconds.
 
-If the local time given is ambiguous due to a nearby offest change, the
+If the local time given is ambiguous due to a nearby offset change, the
 numerically lower offset (usually the standard one) is returned with no
 warning of the situation.  If the local time given does not exist due
 to a nearby offset change, the method C<die>s saying so.
@@ -413,8 +420,9 @@ sub _local_to_utc_rdn_sod($$$) {
 	return ($rdn, $sod);
 }
 
-sub is_dst_for_local_datetime($$) {
-	my($self, $dt) = @_;
+sub _is_dst_for_local_datetime {
+	my DateTime::TimeZone::SystemV $self = shift;
+	my($dt) = @_;
 	return 0 unless exists $self->{dst_abbrev};
 	my($lcl_rdn, $lcl_sod) = $dt->local_rd_values;
 	$lcl_sod = 86399 if $lcl_sod >= 86400;
@@ -439,9 +447,10 @@ sub is_dst_for_local_datetime($$) {
 	}
 }
 
-sub offset_for_local_datetime($$) {
-	my($self, $dt) = @_;
-	return $self->{$self->is_dst_for_local_datetime($dt) ?
+sub offset_for_local_datetime {
+	my DateTime::TimeZone::SystemV $self = shift;
+	my($dt) = @_;
+	return $self->{$self->_is_dst_for_local_datetime($dt) ?
 			"dst_offset" : "std_offset"};
 }
 
@@ -458,7 +467,9 @@ Andrew Main (Zefram) <zefram@fysh.org>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007 Andrew Main (Zefram) <zefram@fysh.org>
+Copyright (C) 2007, 2009 Andrew Main (Zefram) <zefram@fysh.org>
+
+=head1 LICENSE
 
 This module is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

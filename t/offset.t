@@ -8,7 +8,8 @@ require_ok "DateTime::TimeZone::SystemV";
 
 sub try($$$$) {
 	my($timespec, $is_dst, $offset, $abbrev) = @_;
-	$timespec =~ /\A(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)Z\z/ or die;
+	$timespec =~ /\A([0-9]{4})-([0-9]{2})-([0-9]{2})T
+			([0-9]{2}):([0-9]{2}):([0-9]{2})Z\z/x or die;
 	my $dt = DateTime->new(year => $1, month => $2, day => $3,
 			       hour => $4, minute => $5, second => $6,
 			       time_zone => "UTC");

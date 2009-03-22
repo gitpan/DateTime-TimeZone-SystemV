@@ -1,16 +1,17 @@
 ---
 name: DateTime-TimeZone-SystemV
-version: 0.002
+version: 0.003
 author:
   - 'Andrew Main (Zefram) <zefram@fysh.org>'
 abstract: System V and POSIX timezone strings
 license: perl
 resources:
-  license: http://dev.perl.org/licenses/
+  license: ~
 requires:
   Carp: 0
   Date::ISO8601: 0
   Date::JD: 0.002
+  fields: 0
   perl: 5.006
   strict: 0
   warnings: 0
@@ -24,8 +25,9 @@ dynamic_config: 0
 provides:
   DateTime::TimeZone::SystemV:
     file: lib/DateTime/TimeZone/SystemV.pm
-    version: 0.002
-generated_by: Module::Build version 0.2808
+    version: 0.003
+generated_by: Module::Build version 0.31012
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.2.html
   version: 1.2
+distribution_type: module
