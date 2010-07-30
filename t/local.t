@@ -1,3 +1,6 @@
+use warnings;
+use strict;
+
 use Test::More;
 
 eval { require DateTime; };
@@ -5,6 +8,8 @@ plan skip_all => "DateTime not available" unless $@ eq "";
 plan tests => 93;
 
 require_ok "DateTime::TimeZone::SystemV";
+
+my $tz;
 
 sub try($$) {
 	my($timespec, $offset) = @_;
@@ -70,3 +75,5 @@ foreach("EST5EDT", "EDT4EST5,M10.5.0,M4.5.0") {
 	try "2005-12-31T18:59:59", -18000;
 	try "2004-12-31T19:00:00", -18000;
 }
+
+1;

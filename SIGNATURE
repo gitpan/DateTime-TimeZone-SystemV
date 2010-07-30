@@ -1,5 +1,5 @@
 This file contains message digests of all files listed in MANIFEST,
-signed via the Module::Signature module, version 0.55.
+signed via the Module::Signature module, version 0.64.
 
 To verify the content in this distribution, first make sure you have
 Module::Signature installed, then type:
@@ -14,23 +14,23 @@ not run its Makefile.PL or Build.PL.
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-SHA1 f4b1eb4ca5a6055c2dc5d1afbfb296f10e414d40 .cvsignore
-SHA1 51a5bdc7e650648e4acb9c6021b58634f5e0cbce Build.PL
-SHA1 353a2b6e233acb8437121d8b7c21b61a7c1f02da Changes
+SHA1 30e843ea9b71982728e17d087ba9226a93a360f7 .cvsignore
+SHA1 996b91875b51bf610e0d5eb6ba0cca417358a662 Build.PL
+SHA1 b5bffc4212098606c5355d818522448cb9ca23d3 Changes
 SHA1 bf878d1b2172bbe976511383b1f5027bb7b5eeb5 MANIFEST
-SHA1 f14faf654bbd741108c7543234c08363b8dedf70 META.yml
-SHA1 f39315b8e83202006e8a916c6a58725d104f75ec Makefile.PL
-SHA1 05ea71e532a2d05c651ba9590680adb739b8e262 README
-SHA1 5aa3f868735993383fb55ca509e04b2862d045d9 lib/DateTime/TimeZone/SystemV.pm
-SHA1 0596709e97149324325178387ca4a888e3319790 t/ident.t
-SHA1 2c499969f1bf0abe6b9259ececfaf47147c50ec1 t/local.t
-SHA1 c2ff94315c83cc4c085336edb3944c4f6729847f t/offset.t
-SHA1 0e141eecf3ca4903ef38d9413b5403a9ddb0392f t/pod_cvg.t
-SHA1 74a957cd8b93f25672ecc6aa578a671d084dd343 t/pod_syn.t
+SHA1 aadb5ce961197956f5d819d4f7edc66464b08b68 META.yml
+SHA1 caae608231ffe78390c76451ade51a7cfc87a9f9 Makefile.PL
+SHA1 44992b10ee9cbae828908fff9ab8c3469ff543fb README
+SHA1 f74d720dba5b43502df2090396976d9b1aaef0aa lib/DateTime/TimeZone/SystemV.pm
+SHA1 4f82ac9fc2c4178fd13cd746a18e88b088fc3ca5 t/ident.t
+SHA1 0591a7ed964b0c4e081a5a89c67b0fb007a62e2d t/local.t
+SHA1 f136de0298df60086d092c0832429cb4bfa00bf9 t/offset.t
+SHA1 904d9a4f76525e2303e4b0c168c68230f223c8de t/pod_cvg.t
+SHA1 65c75abdef6f01a5d1588a307f2ddfe2333dc961 t/pod_syn.t
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.9 (GNU/Linux)
 
-iEYEARECAAYFAknGHQYACgkQOV9mt2VyAVE8/ACfUujMFIlcOQeCxKvKUDW5pBBa
-bKMAoIYdDEK0RrMtheYxqM3nJBhRguDm
-=yTte
+iEYEARECAAYFAkxTNlgACgkQOV9mt2VyAVFhbgCfSvq6e1LST+6LQKoMGh4AsHYU
+L2wAoJrLILdQ/KPwFtwl65LqSS3L7yxx
+=+Vp+
 -----END PGP SIGNATURE-----

@@ -1,33 +1,37 @@
 ---
-name: DateTime-TimeZone-SystemV
-version: 0.003
+abstract: 'System V and POSIX timezone strings'
 author:
   - 'Andrew Main (Zefram) <zefram@fysh.org>'
-abstract: System V and POSIX timezone strings
-license: perl
-resources:
-  license: ~
-requires:
-  Carp: 0
-  Date::ISO8601: 0
-  Date::JD: 0.002
-  fields: 0
-  perl: 5.006
-  strict: 0
-  warnings: 0
 build_requires:
   Module::Build: 0
   Test::More: 0
   perl: 5.006
   strict: 0
   warnings: 0
+configure_requires:
+  Module::Build: 0
+  perl: 5.006
+  strict: 0
+  warnings: 0
+distribution_type: module
 dynamic_config: 0
+generated_by: 'Module::Build version 0.3607'
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: DateTime-TimeZone-SystemV
 provides:
   DateTime::TimeZone::SystemV:
     file: lib/DateTime/TimeZone/SystemV.pm
-    version: 0.003
-generated_by: Module::Build version 0.31012
-meta-spec:
-  url: http://module-build.sourceforge.net/META-spec-v1.2.html
-  version: 1.2
-distribution_type: module
+    version: 0.004
+requires:
+  Carp: 0
+  Date::ISO8601: 0
+  Date::JD: 0.002
+  perl: 5.006
+  strict: 0
+  warnings: 0
+resources:
+  license: http://dev.perl.org/licenses/
+version: 0.004
