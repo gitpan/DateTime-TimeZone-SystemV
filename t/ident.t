@@ -16,13 +16,13 @@ is $tz->category, undef;
 is $tz->name, "EST5";
 ok !$tz->has_dst_changes;
 
-$tz = DateTime::TimeZone::SystemV->new("EST5EDT");
+$tz = DateTime::TimeZone::SystemV->new(name => "foo", recipe => "EST5EDT");
 ok $tz;
 ok !$tz->is_floating;
 ok !$tz->is_utc;
 ok !$tz->is_olson;
 is $tz->category, undef;
-is $tz->name, "EST5EDT";
+is $tz->name, "foo";
 ok $tz->has_dst_changes;
 
 1;

@@ -1,5 +1,5 @@
 This file contains message digests of all files listed in MANIFEST,
-signed via the Module::Signature module, version 0.64.
+signed via the Module::Signature module, version 0.68.
 
 To verify the content in this distribution, first make sure you have
 Module::Signature installed, then type:
@@ -14,23 +14,25 @@ not run its Makefile.PL or Build.PL.
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-SHA1 30e843ea9b71982728e17d087ba9226a93a360f7 .cvsignore
-SHA1 996b91875b51bf610e0d5eb6ba0cca417358a662 Build.PL
-SHA1 b5bffc4212098606c5355d818522448cb9ca23d3 Changes
-SHA1 bf878d1b2172bbe976511383b1f5027bb7b5eeb5 MANIFEST
-SHA1 aadb5ce961197956f5d819d4f7edc66464b08b68 META.yml
-SHA1 caae608231ffe78390c76451ade51a7cfc87a9f9 Makefile.PL
-SHA1 44992b10ee9cbae828908fff9ab8c3469ff543fb README
-SHA1 f74d720dba5b43502df2090396976d9b1aaef0aa lib/DateTime/TimeZone/SystemV.pm
-SHA1 4f82ac9fc2c4178fd13cd746a18e88b088fc3ca5 t/ident.t
-SHA1 0591a7ed964b0c4e081a5a89c67b0fb007a62e2d t/local.t
-SHA1 f136de0298df60086d092c0832429cb4bfa00bf9 t/offset.t
+SHA1 42e8aef29541daee4fc9a590ac714cb055fb44bb .cvsignore
+SHA1 2582565557474c538d5a355dec46691ca86ca6ce Build.PL
+SHA1 08dad4eb31a517ef38c126e286c8b821e8135eee Changes
+SHA1 1281d17e8c5eca0658ff9c1ec0ae4f8de4f9204c MANIFEST
+SHA1 1c23aa4018226b59690e9cdc1ce6757e20b8127e META.json
+SHA1 35864f74e3cb30a229fb22fbbef6c062e583e139 META.yml
+SHA1 a4df8e97ccd390a42212af5a9f4d0986c85e7a5f Makefile.PL
+SHA1 fd93144a0bb0da9491e37fb0207ebac641f96daf README
+SHA1 c2ce2d69868906b53c74ad088dd47290537f9768 lib/DateTime/TimeZone/SystemV.pm
+SHA1 f7d45469cc59f1cb2e5dac2ee47fd85755d3b99b t/construct.t
+SHA1 8b35493343a2804f5c4fd38e2feed15999ee86a7 t/ident.t
+SHA1 63e90c5642fdccb901a8c1ece55876eb1fc397ee t/local.t
+SHA1 c1ec841f1aa01786b47231e081858de4378a3e24 t/offset.t
 SHA1 904d9a4f76525e2303e4b0c168c68230f223c8de t/pod_cvg.t
 SHA1 65c75abdef6f01a5d1588a307f2ddfe2333dc961 t/pod_syn.t
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
+Version: GnuPG v1.4.10 (GNU/Linux)
 
-iEYEARECAAYFAkxTNlgACgkQOV9mt2VyAVFhbgCfSvq6e1LST+6LQKoMGh4AsHYU
-L2wAoJrLILdQ/KPwFtwl65LqSS3L7yxx
-=+Vp+
+iEYEARECAAYFAk6A+BgACgkQOV9mt2VyAVES4ACff67yLL/r3ubakGwbWD+K5+Ko
+BooAn2O64UKSyZ9bbvxCwP9vPTmeFGnC
+=GW2M
 -----END PGP SIGNATURE-----

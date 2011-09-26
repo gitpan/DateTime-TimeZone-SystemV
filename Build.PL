@@ -14,6 +14,8 @@ Module::Build->new(
 		"warnings" => 0,
 	},
 	build_requires => {
+		"Date::ISO8601" => 0,
+		"Date::JD" => "0.005",
 		"Module::Build" => 0,
 		"Test::More" => 0,
 		"perl" => "5.006",
@@ -23,7 +25,8 @@ Module::Build->new(
 	requires => {
 		"Carp" => 0,
 		"Date::ISO8601" => 0,
-		"Date::JD" => "0.002",
+		"Date::JD" => "0.005",
+		"Params::Classify" => 0,
 		"perl" => "5.006",
 		"strict" => 0,
 		"warnings" => 0,

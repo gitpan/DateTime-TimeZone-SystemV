@@ -6,7 +6,11 @@ DateTime::TimeZone::SystemV - System V and POSIX timezone strings
 
 	use DateTime::TimeZone::SystemV;
 
-	$tz = DateTime::TimeZone::SystemV->new("EST5EDT");
+	$tz = DateTime::TimeZone::SystemV->new(
+		name => "US Eastern",
+		recipe => "EST5EDT,M3.2.0,M11.1.0");
+	$tz = DateTime::TimeZone::SystemV->new(
+		"EST5EDT,M3.2.0,M11.1.0");
 
 	if($tz->is_floating) { ...
 	if($tz->is_utc) { ...
@@ -23,7 +27,7 @@ DateTime::TimeZone::SystemV - System V and POSIX timezone strings
 =head1 DESCRIPTION
 
 An instance of this class represents a timezone that was specified by
-means of a System V timezone string or the POSIX extended form of the
+means of a System V timezone recipe or the POSIX extended form of the
 same syntax.  These can express a plain offset from Universal Time, or
 a system of two offsets (standard and daylight saving time) switching
 on a yearly cycle according to certain types of rule.
@@ -31,12 +35,12 @@ on a yearly cycle according to certain types of rule.
 This class implements the L<DateTime::TimeZone> interface, so that its
 instances can be used with L<DateTime> objects.
 
-=head1 SYSTEM V TIMEZONE SYNTAX
+=head1 SYSTEM V TIMEZONE RECIPE SYNTAX
 
-In the POSIX extended form of the System V timezone syntax,
+In the POSIX extended form of the System V timezone recipe syntax,
 a timezone may be specified that has a fixed offset by the
 syntax "I<aaa>I<ooo>", or a timezone with DST by the syntax
-"I<aaa>I<ooo>I<aaa>[I<ooo>]B<,>I<rrr>B<,>I<rrr>".  "I<aaa>" gives an
+"I<aaa>I<ooo>I<aaa>[I<ooo>]B<,>I<rrr>B<,>I<rrr>".  "I<aaa>" specifies an
 abbreviation by which an offset is known, "I<ooo>" specifies the offset,
 and "I<rrr>" is a rule for when DST starts or ends.  For backward
 compatibility, the rules part may also be omitted from a DST-using
@@ -138,10 +142,11 @@ use strict;
 
 use Carp qw(croak);
 use Date::ISO8601 0.000
-	qw(month_days ymd_to_cjdn year_days cjdn_to_yd cjdn_to_ywd);
-use Date::JD 0.002 qw(rdn_to_cjdn);
+	qw(month_days ymd_to_cjdn present_ymd year_days cjdn_to_yd cjdn_to_ywd);
+use Date::JD 0.005 qw(rdn_to_cjdnn);
+use Params::Classify 0.000 qw(is_undef is_string);
 
-our $VERSION = "0.004";
+our $VERSION = "0.005";
 
 my $abbrev_rx = qr#[A-Za-z]{3,}|\<[-+0-9A-Za-z]{3,}\>#;
 my $offset_rx = qr#[-+]?(?:2[0-4]|[01]?[0-9])(?::[0-5][0-9](?::[0-5][0-9])?)?#;
@@ -182,49 +187,85 @@ sub _parse_rule($$) {
 
 =over
 
-=item DateTime::TimeZone::SystemV->new(TZ_STRING)
+=item DateTime::TimeZone::SystemV->new(ATTR => VALUE)
 
-I<TZ_STRING> must be a timezone specification as described in L</SYSTEM
-V TIMEZONE SYNTAX>.  Constructs and returns a L<DateTime>-compatible
-timezone object that implements the timezone specified by I<TZ_STRING>.
+Constructs and returns a L<DateTime>-compatible timezone object that
+implements the timezone described by the recipe given in the arguments.
+The following attributes may be given:
+
+=over
+
+=item B<name>
+
+Name for the timezone object.  This will be returned by the C<name>
+method described below, and will be included in certain error messages.
+
+=item B<recipe>
+
+The short textual timezone recipe, as described in L</SYSTEM V TIMEZONE
+RECIPE SYNTAX>.
+
+=back
+
+A recipe must be given.  If a timezone name is not given, then the recipe
+is used as the timezone name.
+
+=item DateTime::TimeZone::SystemV->new(RECIPE)
+
+Simpler way to invoke the above constructor in the usual case.  Only the
+recipe is given; this will also be used as the timezone name.
 
 =cut
 
 sub new {
-	my($class, $spec) = @_;
-	croak "not a valid SysV-style timezone specification"
-		unless $spec =~ /\A${sysv_tz_rx}\z/o;
-	$spec =~ /\A($abbrev_rx)($offset_rx)/og;
-	my($std_abbrev, $std_offset) = ($1, $2);
-	if($spec =~ /\G\z/gc) {
-		return bless({
-			spec => $spec,
-			std_abbrev => _parse_abbrev($std_abbrev),
-			std_offset => _parse_offset($std_offset),
-		}, $class);
+	my $class = shift;
+	unshift @_, "recipe" if @_ == 1;
+	my $self = bless({}, $class);
+	my $recipe;
+	while(@_) {
+		my $attr = shift;
+		my $value = shift;
+		if($attr eq "name") {
+			croak "timezone name specified redundantly"
+				if exists $self->{name};
+			croak "timezone name must be a string"
+				unless is_string($value);
+			$self->{name} = $value;
+		} elsif($attr eq "recipe") {
+			croak "recipe specified redundantly"
+				if defined $recipe;
+			croak "recipe must be a string"
+				unless is_string($value);
+			$recipe = $value;
+		} else {
+			croak "unrecognised attribute `$attr'";
+		}
 	}
-	$std_offset = _parse_offset($std_offset);
-	$spec =~ /\G($abbrev_rx)($offset_rx)?/g;
+	croak "recipe not specified" unless defined $recipe;
+	$self->{name} = $recipe unless exists $self->{name};
+	croak "not a valid SysV-style timezone recipe"
+		unless $recipe =~ /\A${sysv_tz_rx}\z/o;
+	$recipe =~ /\A($abbrev_rx)($offset_rx)/og;
+	my($std_abbrev, $std_offset) = ($1, $2);
+	$self->{std_abbrev} = _parse_abbrev($std_abbrev);
+	$self->{std_offset} = _parse_offset($std_offset);
+	return $self if $recipe =~ /\G\z/gc;
+	$recipe =~ /\G($abbrev_rx)($offset_rx)?/g;
 	my($dst_abbrev, $dst_offset) = ($1, $2);
-	$dst_offset = defined($dst_offset) ? _parse_offset($dst_offset) :
-					     $std_offset + 3600;
+	$self->{dst_abbrev} = _parse_abbrev($dst_abbrev);
+	$self->{dst_offset} = defined($dst_offset) ?
+		_parse_offset($dst_offset) : $self->{std_offset} + 3600;
 	my($start_rule, $end_rule);
-	if($spec =~ /\G,(.*),(.*)/g) {
+	if($recipe =~ /\G,(.*),(.*)/g) {
 		($start_rule, $end_rule) = ($1, $2);
 	} else {
 		# default to US 1976 rules, which is what the ruleless
 		# old SysV style specs were expected to do
 		($start_rule, $end_rule) = ("M4.5.0", "M10.5.0");
 	}
-	return bless({
-		spec => $spec,
-		std_abbrev => _parse_abbrev($std_abbrev),
-		std_offset => $std_offset,
-		dst_abbrev => _parse_abbrev($dst_abbrev),
-		dst_offset => $dst_offset,
-		start_rule => _parse_rule($start_rule, $std_offset),
-		end_rule => _parse_rule($end_rule, $dst_offset),
-	}, $class);
+	$self->{start_rule} = _parse_rule($start_rule, $self->{std_offset});
+	$self->{end_rule} = _parse_rule($end_rule, $self->{dst_offset});
+	return $self;
 }
 
 =back
@@ -274,11 +315,13 @@ sub category { undef }
 
 =item $tz->name
 
-Returns the I<TZ_STRING> that was supplied to the constructor.
+Returns the timezone name.  Usually this is the recipe that was supplied
+to the constructor, but it can be overridden by the constructor's B<name>
+attribute.
 
 =cut
 
-sub name { $_[0]->{spec} }
+sub name { $_[0]->{name} }
 
 =back
 
@@ -328,7 +371,7 @@ sub _rule_doy($$) {
 
 sub _is_dst_for_utc_rdn_sod {
 	my($self, $rdn, $sod) = @_;
-	my($year, $doy) = cjdn_to_yd(rdn_to_cjdn($rdn));
+	my($year, $doy) = cjdn_to_yd(rdn_to_cjdnn($rdn));
 	my $soy = $doy * 86400 + $sod;
 	my @latest_change;
 	foreach my $change_type (qw(end_rule start_rule)) {
@@ -435,7 +478,15 @@ sub _is_dst_for_local_datetime {
 		if($dst_ok) {
 			return 1;
 		} else {
-			croak "non-existent local time due to offset change";
+			croak "local time @{[
+				present_ymd(rdn_to_cjdnn($lcl_rdn))
+			]}T@{[
+				sprintf(q(%02d:%02d:%02d),
+					int($lcl_sod/3600),
+					int($lcl_sod/60)%60,
+					$lcl_sod%60)
+			]} does not exist in the @{[$self->{name}]} timezone ".
+				"due to offset change";
 		}
 	}
 }
@@ -459,7 +510,8 @@ Andrew Main (Zefram) <zefram@fysh.org>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007, 2009, 2010 Andrew Main (Zefram) <zefram@fysh.org>
+Copyright (C) 2007, 2009, 2010, 2011
+Andrew Main (Zefram) <zefram@fysh.org>
 
 =head1 LICENSE
 

@@ -2,10 +2,12 @@
 Build.PL
 Changes
 MANIFEST
+META.json
 META.yml
 Makefile.PL
 README
 lib/DateTime/TimeZone/SystemV.pm
+t/construct.t
 t/ident.t
 t/local.t
 t/offset.t

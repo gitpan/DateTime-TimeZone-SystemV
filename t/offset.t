@@ -1,11 +1,21 @@
 use warnings;
 use strict;
 
-use Test::More;
+use Test::More tests => 589;
 
-eval { require DateTime; };
-plan skip_all => "DateTime not available" unless $@ eq "";
-plan tests => 589;
+{
+	package FakeUtcDateTime;
+	use Date::ISO8601 0.000 qw(ymd_to_cjdn);
+	use Date::JD 0.005 qw(cjdn_to_rdnn);
+	sub new {
+		my($class, $y, $mo, $d, $h, $mi, $s) = @_;
+		return bless({
+			rdn => cjdn_to_rdnn(ymd_to_cjdn($y, $mo, $d)),
+			sod => 3600*$h + 60*$mi + $s,
+		}, $class);
+	}
+	sub utc_rd_values { ($_[0]->{rdn}, $_[0]->{sod}, 0) }
+}
 
 require_ok "DateTime::TimeZone::SystemV";
 
@@ -15,9 +25,7 @@ sub try($$$$) {
 	my($timespec, $is_dst, $offset, $abbrev) = @_;
 	$timespec =~ /\A([0-9]{4})-([0-9]{2})-([0-9]{2})T
 			([0-9]{2}):([0-9]{2}):([0-9]{2})Z\z/x or die;
-	my $dt = DateTime->new(year => $1, month => $2, day => $3,
-			       hour => $4, minute => $5, second => $6,
-			       time_zone => "UTC");
+	my $dt = FakeUtcDateTime->new("$1", "$2", "$3", "$4", "$5", "$6");
 	is !!$tz->is_dst_for_datetime($dt), !!$is_dst, "is DST for $timespec";
 	is $tz->offset_for_datetime($dt), $offset, "offset for $timespec";
 	is $tz->short_name_for_datetime($dt), $abbrev, "abbrev for $timespec";

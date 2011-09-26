@@ -5,7 +5,7 @@ DateTime::TimeZone::SystemV - System V and POSIX timezone strings
 DESCRIPTION
 
 An instance of this class represents a timezone that was specified by
-means of a System V timezone string or the POSIX extended form of the
+means of a System V timezone recipe or the POSIX extended form of the
 same syntax.  These can express a plain offset from Universal Time, or
 a system of two offsets (standard and daylight saving time) switching
 on a yearly cycle according to certain types of rule.
@@ -26,7 +26,8 @@ Andrew Main (Zefram) <zefram@fysh.org>
 
 COPYRIGHT
 
-Copyright (C) 2007, 2009, 2010 Andrew Main (Zefram) <zefram@fysh.org>
+Copyright (C) 2007, 2009, 2010, 2011
+Andrew Main (Zefram) <zefram@fysh.org>
 
 LICENSE
 

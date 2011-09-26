@@ -1,3 +1,22 @@
+version 0.005; 2011-09-26
+
+  * support specifying a timezone name distinct from the recipe
+
+  * include the local time and zone name in error message about
+    non-existent local time
+
+  * check argument types in constructor
+
+  * in doc, use the word "recipe" to describe the timezone specification
+
+  * make test suite work even if DateTime is not available
+
+  * use new context-independent version of Date::JD function
+
+  * include META.json in distribution
+
+  * add MYMETA.json to .cvsignore
+
 version 0.004; 2010-07-30
 
   * in documentation, use the term "truth value" instead of the less
