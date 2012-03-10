@@ -6,11 +6,11 @@ use Test::More tests => 97;
 {
 	package FakeLocalDateTime;
 	use Date::ISO8601 0.000 qw(ymd_to_cjdn);
-	use Date::JD 0.005 qw(cjdn_to_rdnn);
+	my $rdn_epoch_cjdn = 1721425;
 	sub new {
 		my($class, $y, $mo, $d, $h, $mi, $s) = @_;
 		return bless({
-			rdn => cjdn_to_rdnn(ymd_to_cjdn($y, $mo, $d)),
+			rdn => ymd_to_cjdn($y, $mo, $d) - $rdn_epoch_cjdn,
 			sod => 3600*$h + 60*$mi + $s,
 		}, $class);
 	}
@@ -28,7 +28,10 @@ sub try($$) {
 	my $dt = FakeLocalDateTime->new("$1", "$2", "$3", "$4", "$5", "$6");
 	is eval { $tz->offset_for_local_datetime($dt) }, $offset;
 	unless(defined $offset) {
-		like $@, qr/local time \Q$timespec\E does not exist\b/;
+		like $@, qr/\A
+			local\ time\ \Q$timespec\E\ does\ not\ exist
+			\ in\ the\ [!-~]+\ timezone\ due\ to\ offset\ change
+		\b/x;
 	}
 }
 

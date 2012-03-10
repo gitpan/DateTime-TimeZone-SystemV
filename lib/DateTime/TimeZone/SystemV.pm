@@ -52,11 +52,17 @@ alphanumerics, "B<+>", and "B<->".  If it contains only ASCII alphabetic
 characters then the abbreviation specification "I<aaa>" may be simply
 the abbreviation.  Otherwise "I<aaa>" must consist of the abbreviation
 wrapped in angle brackets ("B<< < >>...B<< > >>").  The angle bracket
-form is always allowed.
+form is always allowed.  POSIX allows an implementation to set an upper
+limit on the length of timezone abbreviations.  The limit is known as
+C<TZNAME_MAX>, and is required to be no less than 6 (characters/bytes).
+Abbreviations longer than 6 characters are therefore not portable.
+This class imposes no such limit.
 
 An offset (from Universal Time), "I<ooo>", is given in hours, or
 hours and minutes, or hours and minutes and seconds, with an optional
-preceding sign.  The maximum magnitude permitted is 24:59:59.  The sign
+preceding sign.  Hours, minutes, and seconds must be separated by colons.
+The hours may be one or two digits, and the minutes and seconds must be
+two digits each.  The maximum magnitude permitted is 24:59:59.  The sign
 in the specification is the opposite of the sign of the actual offset.
 If no sign is given then the default is "B<+>", meaning a timezone that
 is behind UT.  If no DST offset is specified, it defaults to one hour
@@ -71,12 +77,14 @@ future versions.
 A change rule "I<rrr>" takes the form "I<ddd>[B</>I<ttt>]", where "I<ddd>"
 is the rule giving the day on which the change takes place and "I<ttt>"
 is the time of day at which the change takes place.  The time may be
-given in hours, or hours and minutes, or hours and minutes and seconds,
-and if not stated then it defaults to 02:00:00.  The time for the change
-to DST is interpreted according to the standard offset, and the time for
-the change to standard time is interpreted according to the DST offset.
-(Thus normally the change time is interpreted according to the offset
-that prevailed immediately before the change.)
+given in hours, or hours and minutes, or hours and minutes and seconds.
+Hours, minutes, and seconds must be separated by colons.  The hours may be
+one or two digits, and the minutes and seconds must be two digits each.
+If the time is not stated then it defaults to 02:00:00.  The time for
+the change to DST is interpreted according to the standard offset, and
+the time for the change to standard time is interpreted according to the
+DST offset.  (Thus normally the change time is interpreted according to
+the offset that prevailed immediately before the change.)
 
 A day rule "I<ddd>" may take three forms.  Firstly, "B<J>I<nnn>" means the
 month-day date that is the I<nnn>th day of a non-leap year.  Thus "B<J59>"
@@ -143,10 +151,11 @@ use strict;
 use Carp qw(croak);
 use Date::ISO8601 0.000
 	qw(month_days ymd_to_cjdn present_ymd year_days cjdn_to_yd cjdn_to_ywd);
-use Date::JD 0.005 qw(rdn_to_cjdnn);
 use Params::Classify 0.000 qw(is_undef is_string);
 
-our $VERSION = "0.005";
+our $VERSION = "0.006";
+
+my $rdn_epoch_cjdn = 1721425;
 
 my $abbrev_rx = qr#[A-Za-z]{3,}|\<[-+0-9A-Za-z]{3,}\>#;
 my $offset_rx = qr#[-+]?(?:2[0-4]|[01]?[0-9])(?::[0-5][0-9](?::[0-5][0-9])?)?#;
@@ -187,7 +196,7 @@ sub _parse_rule($$) {
 
 =over
 
-=item DateTime::TimeZone::SystemV->new(ATTR => VALUE)
+=item DateTime::TimeZone::SystemV->new(ATTR => VALUE, ...)
 
 Constructs and returns a L<DateTime>-compatible timezone object that
 implements the timezone described by the recipe given in the arguments.
@@ -371,7 +380,7 @@ sub _rule_doy($$) {
 
 sub _is_dst_for_utc_rdn_sod {
 	my($self, $rdn, $sod) = @_;
-	my($year, $doy) = cjdn_to_yd(rdn_to_cjdnn($rdn));
+	my($year, $doy) = cjdn_to_yd($rdn + $rdn_epoch_cjdn);
 	my $soy = $doy * 86400 + $sod;
 	my @latest_change;
 	foreach my $change_type (qw(end_rule start_rule)) {
@@ -479,7 +488,7 @@ sub _is_dst_for_local_datetime {
 			return 1;
 		} else {
 			croak "local time @{[
-				present_ymd(rdn_to_cjdnn($lcl_rdn))
+				present_ymd($lcl_rdn + $rdn_epoch_cjdn)
 			]}T@{[
 				sprintf(q(%02d:%02d:%02d),
 					int($lcl_sod/3600),
@@ -502,7 +511,8 @@ sub offset_for_local_datetime {
 =head1 SEE ALSO
 
 L<DateTime>,
-L<DateTime::TimeZone>
+L<DateTime::TimeZone>,
+L<POSIX.1|http://www.opengroup.org/onlinepubs/000095399/basedefs/xbd_chap08.html>
 
 =head1 AUTHOR
 
@@ -510,7 +520,7 @@ Andrew Main (Zefram) <zefram@fysh.org>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007, 2009, 2010, 2011
+Copyright (C) 2007, 2009, 2010, 2011, 2012
 Andrew Main (Zefram) <zefram@fysh.org>
 
 =head1 LICENSE

@@ -1,7 +1,7 @@
 use warnings;
 use strict;
 
-use Test::More tests => 22;
+use Test::More tests => 23;
 
 require_ok "DateTime::TimeZone::SystemV";
 
@@ -40,6 +40,9 @@ eval {
 		recipe => "EST5EDT");
 };
 like $@, qr/\Arecipe specified redundantly\b/;
+
+eval { DateTime::TimeZone::SystemV->new(recipe => "EST"); };
+like $@, qr/\Anot a valid SysV-style timezone recipe\b/;
 
 foreach(
 	undef,

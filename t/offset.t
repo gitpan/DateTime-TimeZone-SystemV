@@ -1,16 +1,16 @@
 use warnings;
 use strict;
 
-use Test::More tests => 589;
+use Test::More tests => 664;
 
 {
 	package FakeUtcDateTime;
 	use Date::ISO8601 0.000 qw(ymd_to_cjdn);
-	use Date::JD 0.005 qw(cjdn_to_rdnn);
+	my $rdn_epoch_cjdn = 1721425;
 	sub new {
 		my($class, $y, $mo, $d, $h, $mi, $s) = @_;
 		return bless({
-			rdn => cjdn_to_rdnn(ymd_to_cjdn($y, $mo, $d)),
+			rdn => ymd_to_cjdn($y, $mo, $d) - $rdn_epoch_cjdn,
 			sod => 3600*$h + 60*$mi + $s,
 		}, $class);
 	}
@@ -263,5 +263,34 @@ try "2006-01-01T23:59:59Z", 1, +86400, "BBB";
 try "2006-01-02T00:00:00Z", 1, +86400, "BBB";
 try "2006-01-03T00:00:00Z", 1, +86400, "BBB";
 try "2006-01-31T00:00:00Z", 1, +86400, "BBB";
+
+# leap seconds, including changes occurring immediately after a leap second
+# (these are not real leap second dates)
+$tz = DateTime::TimeZone::SystemV->new("AAA-3BBB,M3.2.3/3,M11.1.6/4");
+try "2005-02-01T12:00:00Z", 0, +10800, "AAA";
+try "2005-02-01T23:59:59Z", 0, +10800, "AAA";
+try "2005-02-01T23:59:60Z", 0, +10800, "AAA";
+try "2005-02-02T00:00:00Z", 0, +10800, "AAA";
+try "2005-02-02T12:00:00Z", 0, +10800, "AAA";
+try "2005-03-08T12:00:00Z", 0, +10800, "AAA";
+try "2005-03-08T23:59:59Z", 0, +10800, "AAA";
+try "2005-03-08T23:59:60Z", 0, +10800, "AAA";
+try "2005-03-09T00:00:00Z", 1, +14400, "BBB";
+try "2005-03-09T12:00:00Z", 1, +14400, "BBB";
+try "2005-04-01T12:00:00Z", 1, +14400, "BBB";
+try "2005-04-01T23:59:59Z", 1, +14400, "BBB";
+try "2005-04-01T23:59:60Z", 1, +14400, "BBB";
+try "2005-04-02T00:00:00Z", 1, +14400, "BBB";
+try "2005-04-02T12:00:00Z", 1, +14400, "BBB";
+try "2005-11-04T12:00:00Z", 1, +14400, "BBB";
+try "2005-11-04T23:59:59Z", 1, +14400, "BBB";
+try "2005-11-04T23:59:60Z", 1, +14400, "BBB";
+try "2005-11-05T00:00:00Z", 0, +10800, "AAA";
+try "2005-11-05T12:00:00Z", 0, +10800, "AAA";
+try "2005-12-01T12:00:00Z", 0, +10800, "AAA";
+try "2005-12-01T23:59:59Z", 0, +10800, "AAA";
+try "2005-12-01T23:59:60Z", 0, +10800, "AAA";
+try "2005-12-02T00:00:00Z", 0, +10800, "AAA";
+try "2005-12-02T12:00:00Z", 0, +10800, "AAA";
 
 1;

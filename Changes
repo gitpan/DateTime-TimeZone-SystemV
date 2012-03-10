@@ -1,3 +1,24 @@
+version 0.006; 2012-03-10
+
+  * eliminate use of Date::JD, because it's too heavy to justify the
+    minimal convenience gained from it
+
+  * in documentation, fully explicate the syntax for offsets and times
+    of day in recipes
+
+  * in documentation, describe the POSIX abbreviation length limit
+
+  * in documentation, link to the POSIX definition of the TZ environment
+    variable
+
+  * in documentation, fix parameter summary for constructor
+
+  * a little more testing of error cases
+
+  * test behaviour around leap seconds
+
+  * convert .cvsignore to .gitignore
+
 version 0.005; 2011-09-26
 
   * support specifying a timezone name distinct from the recipe
