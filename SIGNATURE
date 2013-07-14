@@ -1,5 +1,5 @@
 This file contains message digests of all files listed in MANIFEST,
-signed via the Module::Signature module, version 0.68.
+signed via the Module::Signature module, version 0.70.
 
 To verify the content in this distribution, first make sure you have
 Module::Signature installed, then type:
@@ -15,24 +15,24 @@ not run its Makefile.PL or Build.PL.
 Hash: SHA1
 
 SHA1 6066e90a15cbd4f85f9d30eae2d2418e6a04df82 .gitignore
-SHA1 daf4873fa4a01e642a94798117249e262ca1653d Build.PL
-SHA1 bbadbe48a14696c3763cfb209b6f1417bd8ebe1d Changes
+SHA1 a649d27904981112fe84f182984f6e93eb1ceb0a Build.PL
+SHA1 cd5fab3e2ad89cc87f3243a558d9e4a17faebbfe Changes
 SHA1 dc8b2575c26fa85efdedbdacca82355a4ae4a0d2 MANIFEST
-SHA1 f9f572de99578d5bdae1c75f792f9b371642bd10 META.json
-SHA1 41261ef300f643b6a7f48d0e729b033303ed4e1f META.yml
-SHA1 a249be72fc0b310375871d710790dd94e08a12f0 Makefile.PL
-SHA1 9b0be8f54788ca83cdbd820918a22c0017b07afb README
-SHA1 03aa320e271835b319c47d923c5f0f9af40a23d3 lib/DateTime/TimeZone/SystemV.pm
+SHA1 659f59cb144462922cb024bbd434ae177dfbc269 META.json
+SHA1 e8764b57faf7d7f9adf0faf6df81766a9f06876e META.yml
+SHA1 d644f6f709bd3f1269c64f491a7a34a0b7fad19f Makefile.PL
+SHA1 7a3be303a22b10857b598ef048f54ac9540682de README
+SHA1 ba45e3f0e9f394ef4bba07551f76dac0b2fb7e43 lib/DateTime/TimeZone/SystemV.pm
 SHA1 1ac8d5fa9560d58eb60a0ccd04f967e262547cf0 t/construct.t
 SHA1 8b35493343a2804f5c4fd38e2feed15999ee86a7 t/ident.t
 SHA1 63d0cdc8d77a3287c6aa4ba9952c77edba203790 t/local.t
-SHA1 b55fc33de1b3194dc9bc54bc1f7f8d6e7a82e0e7 t/offset.t
+SHA1 9d4fd67aac297144cd3e1cc40f82d1f5e8d37c3e t/offset.t
 SHA1 904d9a4f76525e2303e4b0c168c68230f223c8de t/pod_cvg.t
 SHA1 65c75abdef6f01a5d1588a307f2ddfe2333dc961 t/pod_syn.t
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
+Version: GnuPG v1.4.12 (GNU/Linux)
 
-iEYEARECAAYFAk9brfMACgkQOV9mt2VyAVGDxQCgnIvy4ZuTKou0893EPC8aQNeR
-x+sAn07GcLSSQNJn1BVXNKnW9rUgaI1F
-=q+lG
+iEYEARECAAYFAlHi8gsACgkQOV9mt2VyAVHZdQCggD7Rdz6hGH3xK00T3/i/iLot
+JIgAn0tIn0se015oJ/IUmmsvGPTex1LW
+=XN3L
 -----END PGP SIGNATURE-----

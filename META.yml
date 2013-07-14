@@ -15,7 +15,7 @@ configure_requires:
   strict: 0
   warnings: 0
 dynamic_config: 0
-generated_by: 'Module::Build version 0.4, CPAN::Meta::Converter version 2.112621'
+generated_by: 'Module::Build version 0.4003, CPAN::Meta::Converter version 2.120921'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -24,7 +24,7 @@ name: DateTime-TimeZone-SystemV
 provides:
   DateTime::TimeZone::SystemV:
     file: lib/DateTime/TimeZone/SystemV.pm
-    version: 0.006
+    version: 0.007
 requires:
   Carp: 0
   Date::ISO8601: 0
@@ -34,4 +34,5 @@ requires:
   warnings: 0
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.006
+  repository: git://git.fysh.org/zefram/DateTime-TimeZone-SystemV.git
+version: 0.007

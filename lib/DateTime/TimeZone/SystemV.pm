@@ -80,11 +80,13 @@ is the time of day at which the change takes place.  The time may be
 given in hours, or hours and minutes, or hours and minutes and seconds.
 Hours, minutes, and seconds must be separated by colons.  The hours may be
 one or two digits, and the minutes and seconds must be two digits each.
-If the time is not stated then it defaults to 02:00:00.  The time for
-the change to DST is interpreted according to the standard offset, and
-the time for the change to standard time is interpreted according to the
-DST offset.  (Thus normally the change time is interpreted according to
-the offset that prevailed immediately before the change.)
+The time stated may range from 00:00:00 to 24:59:59 (almost an hour
+into the following day).  If the time is not stated then it defaults
+to 02:00:00.  The time for the change to DST is interpreted according
+to the standard offset, and the time for the change to standard time
+is interpreted according to the DST offset.  (Thus normally the change
+time is interpreted according to the offset that prevailed immediately
+before the change.)
 
 A day rule "I<ddd>" may take three forms.  Firstly, "B<J>I<nnn>" means the
 month-day date that is the I<nnn>th day of a non-leap year.  Thus "B<J59>"
@@ -153,7 +155,7 @@ use Date::ISO8601 0.000
 	qw(month_days ymd_to_cjdn present_ymd year_days cjdn_to_yd cjdn_to_ywd);
 use Params::Classify 0.000 qw(is_undef is_string);
 
-our $VERSION = "0.006";
+our $VERSION = "0.007";
 
 my $rdn_epoch_cjdn = 1721425;
 
@@ -162,7 +164,7 @@ my $offset_rx = qr#[-+]?(?:2[0-4]|[01]?[0-9])(?::[0-5][0-9](?::[0-5][0-9])?)?#;
 my $rule_date_rx = qr#J0*(?:3(?:[0-5][0-9]|6[0-5])|[12]?[0-9][0-9]|[1-9])
 		     |0*(?:3(?:[0-5][0-9]|6[0-4])|[12]?[0-9][0-9]|[0-9])
 		     |M0*(?:1[0-2]|[1-9])\.0*[1-5]\.0*[0-6]#x;
-my $rule_time_rx = qr#(?:2[0-3]|[01]?[0-9])(?::[0-5][0-9](?::[0-5][0-9])?)?#;
+my $rule_time_rx = qr#(?:2[0-4]|[01]?[0-9])(?::[0-5][0-9](?::[0-5][0-9])?)?#;
 my $rule_dt_rx = qr#${rule_date_rx}(?:/${rule_time_rx})?#o;
 my $sysv_tz_rx = qr#${abbrev_rx}${offset_rx}
 		    (?:${abbrev_rx}(?:${offset_rx})?
@@ -520,7 +522,7 @@ Andrew Main (Zefram) <zefram@fysh.org>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007, 2009, 2010, 2011, 2012
+Copyright (C) 2007, 2009, 2010, 2011, 2012, 2013
 Andrew Main (Zefram) <zefram@fysh.org>
 
 =head1 LICENSE

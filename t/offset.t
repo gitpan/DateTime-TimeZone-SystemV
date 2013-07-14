@@ -1,7 +1,7 @@
 use warnings;
 use strict;
 
-use Test::More tests => 664;
+use Test::More tests => 712;
 
 {
 	package FakeUtcDateTime;
@@ -177,6 +177,25 @@ try "2005-03-09T04:00:00Z", 1, -10800, "AAA";
 try "2005-11-05T04:59:59Z", 1, -10800, "AAA";
 try "2005-11-05T05:00:00Z", 0, -7200, "BBB";
 try "2005-12-29T23:59:59Z", 0, -7200, "BBB";
+
+# DST change in following day
+$tz = DateTime::TimeZone::SystemV->new("AAA-2BBB,M3.5.4/24:30,M10.5.5/24:30");
+try "2012-03-28T10:00:00Z", 0, 7200, "AAA";
+try "2012-03-29T10:00:00Z", 0, 7200, "AAA";
+try "2012-03-29T21:59:59Z", 0, 7200, "AAA";
+try "2012-03-29T22:00:00Z", 0, 7200, "AAA";
+try "2012-03-29T22:29:59Z", 0, 7200, "AAA";
+try "2012-03-29T22:30:00Z", 1, 10800, "BBB";
+try "2012-03-30T10:00:00Z", 1, 10800, "BBB";
+try "2012-03-31T10:00:00Z", 1, 10800, "BBB";
+try "2012-10-25T09:00:00Z", 1, 10800, "BBB";
+try "2012-10-26T09:00:00Z", 1, 10800, "BBB";
+try "2012-10-26T20:59:59Z", 1, 10800, "BBB";
+try "2012-10-26T21:00:00Z", 1, 10800, "BBB";
+try "2012-10-26T21:29:59Z", 1, 10800, "BBB";
+try "2012-10-26T21:30:00Z", 0, 7200, "AAA";
+try "2012-10-27T09:00:00Z", 0, 7200, "AAA";
+try "2012-10-28T09:00:00Z", 0, 7200, "AAA";
 
 # change forward at end of year occurs in following UT year
 $tz = DateTime::TimeZone::SystemV->new("AAA24BBB-24,J365/12,J65/12");

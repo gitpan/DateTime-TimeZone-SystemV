@@ -1,3 +1,11 @@
+version 0.007; 2013-07-14
+
+  * bugfix: permit time of day for a DST change to extend up to 24:59:59,
+    which POSIX (unclearly) permits and is actually seen in the current
+    rule for timezone Asia/Amman
+
+  * in META.{yml,json}, point to public git repository
+
 version 0.006; 2012-03-10
 
   * eliminate use of Date::JD, because it's too heavy to justify the
