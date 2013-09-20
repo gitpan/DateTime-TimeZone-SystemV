@@ -4,7 +4,7 @@
       "Andrew Main (Zefram) <zefram@fysh.org>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Module::Build version 0.4003, CPAN::Meta::Converter version 2.120921",
+   "generated_by" : "Module::Build version 0.4007, CPAN::Meta::Converter version 2.131560",
    "license" : [
       "perl_5"
    ],
@@ -46,7 +46,7 @@
    "provides" : {
       "DateTime::TimeZone::SystemV" : {
          "file" : "lib/DateTime/TimeZone/SystemV.pm",
-         "version" : "0.007"
+         "version" : "0.008"
       }
    },
    "release_status" : "stable",
@@ -58,5 +58,5 @@
          "url" : "git://git.fysh.org/zefram/DateTime-TimeZone-SystemV.git"
       }
    },
-   "version" : "0.007"
+   "version" : "0.008"
 }

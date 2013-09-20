@@ -27,18 +27,22 @@ DateTime::TimeZone::SystemV - System V and POSIX timezone strings
 =head1 DESCRIPTION
 
 An instance of this class represents a timezone that was specified by
-means of a System V timezone recipe or the POSIX extended form of the
-same syntax.  These can express a plain offset from Universal Time, or
-a system of two offsets (standard and daylight saving time) switching
-on a yearly cycle according to certain types of rule.
+means of a System V timezone recipe or an extended form of the same syntax
+(such as that specified by POSIX).  These can express a plain offset from
+Universal Time, or a system of two offsets (standard and daylight saving
+time) switching on a yearly cycle according to certain types of rule.
 
 This class implements the L<DateTime::TimeZone> interface, so that its
 instances can be used with L<DateTime> objects.
 
-=head1 SYSTEM V TIMEZONE RECIPE SYNTAX
+=head1 SYSTEM V TIMEZONE RECIPE SYSTEM
 
-In the POSIX extended form of the System V timezone recipe syntax,
-a timezone may be specified that has a fixed offset by the
+This module supports multiple versions of the timezone recipe syntax
+derived from System V.  Specifically, it supports the version specified
+by POSIX.1, and the extension of the POSIX format that is used by version
+3 of the L<tzfile(5)> file format.
+
+A timezone may be specified that has a fixed offset by the
 syntax "I<aaa>I<ooo>", or a timezone with DST by the syntax
 "I<aaa>I<ooo>I<aaa>[I<ooo>]B<,>I<rrr>B<,>I<rrr>".  "I<aaa>" specifies an
 abbreviation by which an offset is known, "I<ooo>" specifies the offset,
@@ -65,28 +69,38 @@ The hours may be one or two digits, and the minutes and seconds must be
 two digits each.  The maximum magnitude permitted is 24:59:59.  The sign
 in the specification is the opposite of the sign of the actual offset.
 If no sign is given then the default is "B<+>", meaning a timezone that
-is behind UT.  If no DST offset is specified, it defaults to one hour
-ahead of the standard offset.
+is behind UT (or equal to UT if the offset is zero).  If no DST offset
+is specified, it defaults to one hour ahead of the standard offset.
 
-A DST-using timezone has one change to DST and one change to standard
-time in each Gregorian year.  The changes may be in either order within
-the year.  If the changes are in different orders from year to year
-then the behaviour is undefined; don't rely on it remaining the same in
-future versions.
+A DST-using timezone has one transition to DST and one transition to
+standard time in each Gregorian year.  The transitions may be in either
+order within the year.  If the transitions are in different orders from
+year to year then the behaviour is undefined; don't rely on it remaining
+the same in future versions.  Likewise, the behaviour is generally
+undefined if transitions coincide.  However, in the L<tzfile(5)> variant,
+if the rules specify a transition to DST at 00:00 standard time on 1
+January and a transition to standard time at 24:00 standard time on 31
+December, which makes the transitions coincide with those of adjacent
+years, then the timezone is treated as observing DST all year.
 
-A change rule "I<rrr>" takes the form "I<ddd>[B</>I<ttt>]", where "I<ddd>"
-is the rule giving the day on which the change takes place and "I<ttt>"
-is the time of day at which the change takes place.  The time may be
+A transition rule "I<rrr>" takes the form "I<ddd>[B</>I<ttt>]", where
+"I<ddd>" is the rule giving the day on which the transition notionally
+takes place and "I<ttt>" is the time of day at which the transition
+takes place.  (A time of day outside the usual 24-hour range can make
+the transition actually take place on a different day.)  The time may be
 given in hours, or hours and minutes, or hours and minutes and seconds.
-Hours, minutes, and seconds must be separated by colons.  The hours may be
-one or two digits, and the minutes and seconds must be two digits each.
-The time stated may range from 00:00:00 to 24:59:59 (almost an hour
-into the following day).  If the time is not stated then it defaults
-to 02:00:00.  The time for the change to DST is interpreted according
-to the standard offset, and the time for the change to standard time
-is interpreted according to the DST offset.  (Thus normally the change
-time is interpreted according to the offset that prevailed immediately
-before the change.)
+Hours, minutes, and seconds must be separated by colons.  The minutes
+and seconds must be two digits each.  In the POSIX variant, the hours
+may be one or two digits, with no preceding sign, and the time stated may
+range from 00:00:00 to 24:59:59 (almost an hour into the following day).
+In the L<tzfile(5)> variant, the hours may be one to three digits, with
+optional preceding sign, and the time stated may range from -167:59:59
+to +167:59:59 (a span of a little over two weeks).  If the time is not
+stated then it defaults to 02:00:00.  The time for the transition to DST
+is interpreted according to the standard offset, and the time for the
+transition to standard time is interpreted according to the DST offset.
+(Thus normally the transition time is interpreted according to the offset
+that prevailed immediately before the transition.)
 
 A day rule "I<ddd>" may take three forms.  Firstly, "B<J>I<nnn>" means the
 month-day date that is the I<nnn>th day of a non-leap year.  Thus "B<J59>"
@@ -140,6 +154,17 @@ in the southern summer.  Changes to DST on the last Sunday in October,
 and back on the last Sunday in March, in each case at 02:00 standard time
 (16:00 UT of the preceding day).
 
+=item EET-2EEST,M3.5.4/24,M9.3.6/145
+
+Palestinian civil time, from 2012 onwards.  2 hours ahead of UT in winter
+and 3 hours ahead in summer.  Changes at the end (24:00 local time) of
+the last Thursday in March and 01:00 local time on the Friday following
+the third Saturday in September (that is, the Friday falling between
+September 21 and September 27 inclusive).  The extended time-of-day "145",
+meaning 01:00 of the day six days after the nominal day, is only valid
+in the L<tzfile(5)> variant of the System V syntax.  The time-of-day
+"24" is not so restricted, being permitted by POSIX.
+
 =back
 
 =cut
@@ -155,7 +180,7 @@ use Date::ISO8601 0.000
 	qw(month_days ymd_to_cjdn present_ymd year_days cjdn_to_yd cjdn_to_ywd);
 use Params::Classify 0.000 qw(is_undef is_string);
 
-our $VERSION = "0.007";
+our $VERSION = "0.008";
 
 my $rdn_epoch_cjdn = 1721425;
 
@@ -164,11 +189,24 @@ my $offset_rx = qr#[-+]?(?:2[0-4]|[01]?[0-9])(?::[0-5][0-9](?::[0-5][0-9])?)?#;
 my $rule_date_rx = qr#J0*(?:3(?:[0-5][0-9]|6[0-5])|[12]?[0-9][0-9]|[1-9])
 		     |0*(?:3(?:[0-5][0-9]|6[0-4])|[12]?[0-9][0-9]|[0-9])
 		     |M0*(?:1[0-2]|[1-9])\.0*[1-5]\.0*[0-6]#x;
-my $rule_time_rx = qr#(?:2[0-4]|[01]?[0-9])(?::[0-5][0-9](?::[0-5][0-9])?)?#;
-my $rule_dt_rx = qr#${rule_date_rx}(?:/${rule_time_rx})?#o;
-my $sysv_tz_rx = qr#${abbrev_rx}${offset_rx}
+my $posix_rule_time_rx =
+	qr#(?:2[0-4]|[01]?[0-9])(?::[0-5][0-9](?::[0-5][0-9])?)?#;
+my $tzfile3_rule_time_rx =
+	qr#[-+]?(?:16[0-7]|1[0-5][0-9]|0[0-9][0-9]|[0-9]{1,2})
+	   (?::[0-5][0-9](?::[0-5][0-9])?)?#x;
+my $posix_rule_dt_rx = qr#${rule_date_rx}(?:/${posix_rule_time_rx})?#o;
+my $tzfile3_rule_dt_rx = qr#${rule_date_rx}(?:/${tzfile3_rule_time_rx})?#o;
+my $posix_tz_rx = qr#${abbrev_rx}${offset_rx}
 		    (?:${abbrev_rx}(?:${offset_rx})?
-		       (?:,${rule_dt_rx},${rule_dt_rx})?)?#xo;
+		       (?:,${posix_rule_dt_rx},${posix_rule_dt_rx})?)?#xo;
+my $tzfile3_tz_rx = qr#${abbrev_rx}${offset_rx}
+		    (?:${abbrev_rx}(?:${offset_rx})?
+		       (?:,${tzfile3_rule_dt_rx},${tzfile3_rule_dt_rx})?)?#xo;
+
+my %tz_rx = (
+	posix => $posix_tz_rx,
+	tzfile3 => $tzfile3_tz_rx,
+);
 
 sub _parse_abbrev($) {
 	my($spec) = @_;
@@ -190,7 +228,7 @@ sub _parse_rule($$) {
 	return {
 		drule => $drule,
 		sod => -$offset +
-			(defined($tod) ? _parse_offset("-$tod") : 7200),
+			(defined($tod) ? -_parse_offset($tod) : 7200),
 	};
 }
 
@@ -210,21 +248,37 @@ The following attributes may be given:
 
 Name for the timezone object.  This will be returned by the C<name>
 method described below, and will be included in certain error messages.
+If not given, then the recipe is used as the timezone name.
 
 =item B<recipe>
 
 The short textual timezone recipe, as described in L</SYSTEM V TIMEZONE
-RECIPE SYNTAX>.
+RECIPE SYSTEM>.  Must be given.
+
+=item B<system>
+
+Keyword identifying the particular variant of the recipe system according
+to which the recipe is to be interpreted.  It may be:
+
+=over
+
+=item B<posix> (default)
+
+As specified by POSIX.1.
+
+=item B<tzfile3>
+
+As specified by version 3 of the L<tzfile(5)> file format.
 
 =back
 
-A recipe must be given.  If a timezone name is not given, then the recipe
-is used as the timezone name.
+=back
 
 =item DateTime::TimeZone::SystemV->new(RECIPE)
 
 Simpler way to invoke the above constructor in the usual case.  Only the
-recipe is given; this will also be used as the timezone name.
+recipe is given; it will be interpreted according to POSIX system,
+and the recipe will also be used as the timezone name.
 
 =cut
 
@@ -233,6 +287,7 @@ sub new {
 	unshift @_, "recipe" if @_ == 1;
 	my $self = bless({}, $class);
 	my $recipe;
+	my $system;
 	while(@_) {
 		my $attr = shift;
 		my $value = shift;
@@ -248,14 +303,23 @@ sub new {
 			croak "recipe must be a string"
 				unless is_string($value);
 			$recipe = $value;
+		} elsif($attr eq "system") {
+			croak "system identifier specified redundantly"
+				if defined $system;
+			croak "system identifier must be a string"
+				unless is_string($value);
+			croak "system identifier not recognised"
+				unless exists $tz_rx{$value};
+			$system = $value;
 		} else {
 			croak "unrecognised attribute `$attr'";
 		}
 	}
 	croak "recipe not specified" unless defined $recipe;
 	$self->{name} = $recipe unless exists $self->{name};
+	$system = "posix" unless defined $system;
 	croak "not a valid SysV-style timezone recipe"
-		unless $recipe =~ /\A${sysv_tz_rx}\z/o;
+		unless $recipe =~ /\A$tz_rx{$system}\z/;
 	$recipe =~ /\A($abbrev_rx)($offset_rx)/og;
 	my($std_abbrev, $std_offset) = ($1, $2);
 	$self->{std_abbrev} = _parse_abbrev($std_abbrev);
@@ -276,6 +340,14 @@ sub new {
 	}
 	$self->{start_rule} = _parse_rule($start_rule, $self->{std_offset});
 	$self->{end_rule} = _parse_rule($end_rule, $self->{dst_offset});
+	if($system eq "tzfile3" &&
+			$self->{start_rule}->{drule} =~ /\A(?:J0*1|0+)\z/ &&
+			$self->{start_rule}->{sod} == -$self->{std_offset} &&
+			$self->{end_rule}->{drule} =~ /\AJ0*365\z/ &&
+			$self->{end_rule}->{sod} == 86400-$self->{std_offset}) {
+		delete $self->{$_}
+			foreach qw(std_abbrev std_offset start_rule end_rule);
+	}
 	return $self;
 }
 
@@ -404,6 +476,7 @@ sub _is_dst_for_utc_rdn_sod {
 sub is_dst_for_datetime {
 	my($self, $dt) = @_;
 	return 0 unless exists $self->{dst_abbrev};
+	return 1 unless exists $self->{std_abbrev};
 	my($utc_rdn, $utc_sod) = $dt->utc_rd_values;
 	$utc_sod = 86399 if $utc_sod >= 86400;
 	return $self->_is_dst_for_utc_rdn_sod($utc_rdn, $utc_sod);
@@ -514,7 +587,8 @@ sub offset_for_local_datetime {
 
 L<DateTime>,
 L<DateTime::TimeZone>,
-L<POSIX.1|http://www.opengroup.org/onlinepubs/000095399/basedefs/xbd_chap08.html>
+L<POSIX.1|http://www.opengroup.org/onlinepubs/000095399/basedefs/xbd_chap08.html>,
+L<tzfile(5)>
 
 =head1 AUTHOR
 

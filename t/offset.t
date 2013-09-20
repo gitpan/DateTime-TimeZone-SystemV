@@ -1,7 +1,7 @@
 use warnings;
 use strict;
 
-use Test::More tests => 712;
+use Test::More tests => 817;
 
 {
 	package FakeUtcDateTime;
@@ -197,6 +197,27 @@ try "2012-10-26T21:30:00Z", 0, 7200, "AAA";
 try "2012-10-27T09:00:00Z", 0, 7200, "AAA";
 try "2012-10-28T09:00:00Z", 0, 7200, "AAA";
 
+# DST change with wildly extended time-of-day
+$tz = DateTime::TimeZone::SystemV->new(system => "tzfile3",
+	recipe => "AAA-2BBB,M3.5.4/-160,M10.5.5/+160");
+try "2012-03-21T00:00:00Z", 0, 7200, "AAA";
+try "2012-03-22T00:00:00Z", 0, 7200, "AAA";
+try "2012-03-22T05:59:59Z", 0, 7200, "AAA";
+try "2012-03-22T06:00:00Z", 1, 10800, "BBB";
+try "2012-03-23T00:00:00Z", 1, 10800, "BBB";
+try "2012-03-28T00:00:00Z", 1, 10800, "BBB";
+try "2012-03-29T00:00:00Z", 1, 10800, "BBB";
+try "2012-03-30T00:00:00Z", 1, 10800, "BBB";
+try "2012-03-31T00:00:00Z", 1, 10800, "BBB";
+try "2012-10-25T00:00:00Z", 1, 10800, "BBB";
+try "2012-10-27T00:00:00Z", 1, 10800, "BBB";
+try "2012-10-31T00:00:00Z", 1, 10800, "BBB";
+try "2012-11-01T00:00:00Z", 1, 10800, "BBB";
+try "2012-11-01T12:59:59Z", 1, 10800, "BBB";
+try "2012-11-01T13:00:00Z", 0, 7200, "AAA";
+try "2012-11-02T00:00:00Z", 0, 7200, "AAA";
+try "2012-11-03T00:00:00Z", 0, 7200, "AAA";
+
 # change forward at end of year occurs in following UT year
 $tz = DateTime::TimeZone::SystemV->new("AAA24BBB-24,J365/12,J65/12");
 try "2005-01-31T00:00:00Z", 1, +86400, "BBB";
@@ -282,6 +303,28 @@ try "2006-01-01T23:59:59Z", 1, +86400, "BBB";
 try "2006-01-02T00:00:00Z", 1, +86400, "BBB";
 try "2006-01-03T00:00:00Z", 1, +86400, "BBB";
 try "2006-01-31T00:00:00Z", 1, +86400, "BBB";
+
+# perpetual DST
+$tz = DateTime::TimeZone::SystemV->new(system => "tzfile3",
+	recipe => "AAA-2BBB,J1/0,J365/25");
+try "2005-12-01T00:00:00Z", 1, +10800, "BBB";
+try "2005-12-30T00:00:00Z", 1, +10800, "BBB";
+try "2005-12-31T00:00:00Z", 1, +10800, "BBB";
+try "2005-12-31T19:59:59Z", 1, +10800, "BBB";
+try "2005-12-31T20:00:00Z", 1, +10800, "BBB";
+try "2005-12-31T20:59:59Z", 1, +10800, "BBB";
+try "2005-12-31T21:00:00Z", 1, +10800, "BBB";
+try "2005-12-31T21:59:59Z", 1, +10800, "BBB";
+try "2005-12-31T22:00:00Z", 1, +10800, "BBB";
+try "2005-12-31T22:59:59Z", 1, +10800, "BBB";
+try "2005-12-31T23:00:00Z", 1, +10800, "BBB";
+try "2005-12-31T23:59:59Z", 1, +10800, "BBB";
+try "2006-01-01T00:00:00Z", 1, +10800, "BBB";
+try "2006-01-01T00:59:59Z", 1, +10800, "BBB";
+try "2006-01-01T01:00:00Z", 1, +10800, "BBB";
+try "2006-01-01T01:59:59Z", 1, +10800, "BBB";
+try "2006-01-01T02:00:00Z", 1, +10800, "BBB";
+try "2006-01-31T00:00:00Z", 1, +10800, "BBB";
 
 # leap seconds, including changes occurring immediately after a leap second
 # (these are not real leap second dates)
