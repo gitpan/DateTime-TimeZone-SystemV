@@ -1,7 +1,7 @@
 use warnings;
 use strict;
 
-use Test::More tests => 97;
+use Test::More tests => 101;
 
 {
 	package FakeLocalDateTime;
@@ -35,6 +35,7 @@ sub try($$) {
 	}
 }
 
+# constant offset
 $tz = DateTime::TimeZone::SystemV->new("EST5");
 try "2004-12-31T19:00:00", -18000;
 try "2005-03-03T01:00:00", -18000;
@@ -43,6 +44,7 @@ try "2005-09-20T07:00:00", -18000;
 try "2005-11-02T15:00:00", -18000;
 try "2005-12-31T18:59:59", -18000;
 
+# default DST rules, and inverted version of default DST rules
 foreach("EST5EDT", "EDT4EST5,M10.5.0,M4.5.0") {
 	$tz = DateTime::TimeZone::SystemV->new($_);
 	try "2004-12-31T19:00:00", -18000;
@@ -89,5 +91,13 @@ foreach("EST5EDT", "EDT4EST5,M10.5.0,M4.5.0") {
 	try "2005-12-31T18:59:59", -18000;
 	try "2004-12-31T19:00:00", -18000;
 }
+
+# perpetual DST
+$tz = DateTime::TimeZone::SystemV->new(system => "tzfile3",
+	recipe => "AAA-2BBB,J1/0,J365/25");
+try "2005-01-01T00:00:00", +10800;
+try "2005-04-01T00:00:00", +10800;
+try "2005-08-01T00:00:00", +10800;
+try "2005-12-01T00:00:00", +10800;
 
 1;

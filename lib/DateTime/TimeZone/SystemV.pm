@@ -180,7 +180,7 @@ use Date::ISO8601 0.000
 	qw(month_days ymd_to_cjdn present_ymd year_days cjdn_to_yd cjdn_to_ywd);
 use Params::Classify 0.000 qw(is_undef is_string);
 
-our $VERSION = "0.008";
+our $VERSION = "0.009";
 
 my $rdn_epoch_cjdn = 1721425;
 
@@ -544,6 +544,7 @@ sub _local_to_utc_rdn_sod($$$) {
 sub _is_dst_for_local_datetime {
 	my($self, $dt) = @_;
 	return 0 unless exists $self->{dst_abbrev};
+	return 1 unless exists $self->{std_abbrev};
 	my($lcl_rdn, $lcl_sod) = $dt->local_rd_values;
 	$lcl_sod = 86399 if $lcl_sod >= 86400;
 	my($std_rdn, $std_sod) =
